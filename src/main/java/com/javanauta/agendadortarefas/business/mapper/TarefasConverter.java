@@ -10,6 +10,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface TarefasConverter {
 
+
     TarefasEntity paraTarefaEntity(TarefasDTO dto);
 
     TarefasDTO paraTarefaDTO(TarefasEntity entity);
