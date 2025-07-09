@@ -1,8 +1,11 @@
-FROM openjdk:17-jdk-alpine
-
+FROM gradle:7.5-jdk17 as build
 WORKDIR /app
+copy . .
+run gradle build --no--daemon
 
-COPY build/libs/agendador-tarefas-0.0.1-SNAPSHOT.jar  /app/agendador-tarefas.jar
+FROM openjdk:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar  /app/agendador-tarefas.jar
 
 EXPOSE 8081
 
