@@ -1,9 +1,9 @@
 FROM gradle:7.5-jdk17 as build
 WORKDIR /app
 copy . .
-run gradle build --no--daemon
+run gradle build --no-daemon
 
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar  /app/agendador-tarefas.jar
 
