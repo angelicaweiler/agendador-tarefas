@@ -14,13 +14,14 @@ import java.util.Date;
 @Service
 public class JwtUtil {
 
-
-    // Chave secreta usada para assinar e verificar tokens JWT
     private final String secretKey = "c3VhLWNoYXZlLXNlY3JldGEtc3VwZXItc2VndXJhLXF1ZS1kZXZlLXNlci1iZW0tbG9uZ2E=";
 
-    private SecretKey getSecretKey(){
-        byte[] key = Base64.getDecoder().decode(secretKey);
-        return Keys.hmacShaKeyFor(key);
+    // Gera uma Key a partir da chave secreta String codificada em Base64
+    private SecretKey getSigningKey() {
+        // Decodifica a chave secreta em Base64 padrão e cria uma SecretKey
+        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+
     }
 
     // Extrai as claims do token JWT (informações adicionais do token)
