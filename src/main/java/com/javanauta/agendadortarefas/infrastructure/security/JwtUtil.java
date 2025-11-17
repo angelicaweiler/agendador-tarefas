@@ -15,7 +15,7 @@ public class JwtUtil {
     private final String secretKey = "c3VhLWNoYXZlLXNlY3JldGEtc3VwZXItc2VndXJhLXF1ZS1kZXZlLXNlci1iZW0tbG9uZ2E=";
 
     // Gera uma Key a partir da chave secreta String codificada em Base64
-    private SecretKey getSigningKey() {
+    private SecretKey getSecretKey() {
         // Decodifica a chave secreta em Base64 padrão e cria uma SecretKey
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -24,7 +24,7 @@ public class JwtUtil {
     // Extrai as claims do token JWT (informações adicionais do token)
     private Claims extractClaims(String token) {
         return Jwts.parser() // Inicia o processo de parsing do token JWT
-                .verifyWith(getSigningKey()) // Configura o parser para verificar a assinatura do token usando a chave de assinatura fornecida
+                .verifyWith(getSecretKey()) // Configura o parser para verificar a assinatura do token usando a chave de assinatura fornecida
                 .build() // Conclui a configuração do parser
                 .parseSignedClaims(token) // Faz o parsing do token e extrai as claims assinadas
                 .getPayload(); // Obtém o payload (corpo) do token, que contém as claims
