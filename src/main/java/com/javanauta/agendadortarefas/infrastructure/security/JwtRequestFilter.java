@@ -1,9 +1,16 @@
 package com.javanauta.agendadortarefas.infrastructure.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.javanauta.agendadortarefas.infrastructure.exceptions.dto.ErrorResponseDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 // Define a classe JwtRequestFilter, que estende OncePerRequestFilter
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -27,11 +35,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     // Método chamado uma vez por requisição para processar o filtro
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
-
-        // Obtém o valor do header "Authorization" da requisição
-        final String authorizationHeader = request.getHeader("Authorization");
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        try {
+            // Obtém o valor do header "Authorization" da requisição
+            final String authorizationHeader = request.getHeader("Authorization");
 
         // Verifica se o cabeçalho existe e começa com "Bearer "
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -56,6 +63,33 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         // Continua a cadeia de filtros, permitindo que a requisição prossiga
-        chain.doFilter(request, response);
+        chain.doFilter(request, response);            chain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write(buildError(HttpStatus.UNAUTHORIZED.value(),
+                    "Token expirado",
+                    request.getRequestURI(),
+                    e.getMessage()));
+        }
+    }
+
+    private String buildError(int status, String mensagem, String path, String error){
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .message(mensagem)
+                .error(error)
+                .status(status)
+                .path(path)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        try {
+            return objectMapper.writeValueAsString(errorResponseDTO);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
