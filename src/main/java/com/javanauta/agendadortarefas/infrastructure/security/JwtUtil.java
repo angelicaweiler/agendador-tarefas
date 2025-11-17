@@ -19,6 +19,7 @@ public class JwtUtil {
         // Decodifica a chave secreta em Base64 padrão e cria uma SecretKey
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+
     }
 
     // Extrai as claims do token JWT (informações adicionais do token)
