@@ -1,9 +1,6 @@
 package com.javanauta.agendadortarefas.infrastructure.security;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import com.javanauta.agendadortarefas.infrastructure.exceptions.dto.ErrorResponseDTO;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -16,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -84,12 +82,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        try {
+  
             return objectMapper.writeValueAsString(errorResponseDTO);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+
     }
 }
