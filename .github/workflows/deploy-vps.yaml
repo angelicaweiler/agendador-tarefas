@@ -1,0 +1,26 @@
+name: Deploy VPS
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Deploy na VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          script: |
+            cd /root/app/agendador-tarefas
+            git pull origin master
+            cd ..
+            docker compose down --remove-orphans
+            docker compose build --no-cache
+            docker compose up -d --force-recreate
