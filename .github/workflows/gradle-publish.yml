@@ -20,5 +20,6 @@ jobs:
           script: |
             cd /root/app/agendador-tarefas
             git pull
+            docker compose down --remove-orphans
             docker compose build
             docker compose up -d
